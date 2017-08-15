@@ -2,8 +2,8 @@
 *.DS_Store
 
 #Project files
-[Bb]uild
+[Bb]uild/
 
 #IDE
-.idea
-cmake-build-debug
+.idea/
+cmake-build-debug/
