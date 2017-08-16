@@ -3,7 +3,7 @@
 #include <array>
 #include <dlib/pixel.h>
 #include <dlib/image_io.h>
-#include "histogram.h"
+#include "../include/histogram.h"
 
 namespace dlib{
     template< typename P, int maxVal>

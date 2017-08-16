@@ -10,71 +10,77 @@
 #include <iostream>
 #include <string>
 #include <cassert> //for assert()
+#include <vector>
 #include "Image.h"
 
 namespace dip{
+    // Constructs a black image with given dimensions
+    Image::Image(int width, int height, int channels): 
+            w_(width), 
+            h_(height), 
+            channels_(channels){
 
-    Image::Image(int width, int height, int depth): _w(width), _h(height), _d(depth){
-      data = new float[width*height*depth];
+      init_meta(width, height, channels);
+      data = std::vector<float>(nElements_,0);
     }
 
     Image::Image(Image &other){
       std::cout << "copy constructor" << std::endl;
-      int n = other.size();
-      _w = other.w();
-      _h = other.h();
-      _d = other.d();
-      data = new float[n];
-      for (size_t i=0; i<n; ++i){
+      if (nElements_ != other.nElements()){
+        throw MismatchedDimensionsException();
+      }
+      nElements_ = other.nElements();
+      w_ = other.w();
+      h_ = other.h();
+      channels_ = other.channels();
+      strides_[0] = 1;
+      strides_[1] = w_;
+      strides_[2] = w_*h_;
+
+      for (size_t i=0; i<nElements_; ++i){
         data[i] = other(i);
       }
     }
 
     float& Image::operator()(size_t i){
-      assert(data!=NULL && 0 <=i && i<this->size());
-      return data[i];
-    }
-
-    const float& Image::operator()(size_t i) const{
-      assert(data!=NULL && 0 <=i && i<this->size());
+      if (i<0 || i>=nElements_)
+        throw OutofBoundsException();
       return data[i];
     }
     
-    float& Image::operator()(size_t r, size_t c) {
-      assert(0<=r && r<this->h());
-      assert(0<=c && c<this->w());
-      return data[r*this->w()+c];
+    float& Image::operator()(size_t x, size_t y, size_t c) {
+      return data.at(x + y*strides_[1] + c*strides_[2]);
     }
 
     //for const object. still not sure why I need this?
-    const float& Image::operator()(size_t r, size_t c) const{
-      assert(0<=r && r<this->h());
-      assert(0<=c && c<this->w());
-      return data[r*this->w()+c];
+    const float& Image::operator()(size_t i) const{
+      if (i<0 || i >= nElements_)
+        throw OutofBoundsException();
+      return data[i];
+    }
+    
+    const float& Image::operator()(size_t x, size_t y, size_t c) const {
+      return data.at(x + y*strides_[1] + c*strides_[2]);
     }
 
     Image & Image::operator=(const Image &other){
-      assert( this->size()==0 || this->size() == other.size());
-      if (this->size()==0){
-        data = new float[other.size()];
-      }
-      _w = other.w();
-      _h = other.h();
-      _d = other.d();
+      assert( nElements_ ==0 || nElements_ == other.nElements());
+      w_ = other.w();
+      h_ = other.h();
+      channels_ = other.channels();
+      nElements_ = other.nElements();
 
-      size_t n = other.size();
-      for (size_t i=0; i<n; ++i ){
+      for (size_t i=0; i<nElements_; ++i ){
         data[i] = other(i);
       }
       return *this;
     }
 
     bool Image::operator==(const Image &other) const{
-      if (this->size() != other.size()){
+      if ( nElements_ != other.nElements()){
         return false;
       }
-      size_t n = other.size();
-      for (size_t i=0; i<n; ++i){
+      for (size_t i=0; i<nElements_; ++i){
         if (data[i] != other(i)){
           return false;
         }
@@ -91,5 +97,55 @@ namespace dip{
 
     }
 
+    void Image::init_meta(int w, int h, int channels){
+      strides_[0] = 0;
+      strides_[1] = 0;
+      strides_[2] = 0;
+      nElements_ = 1;
+
+      if ( w < 0) 
+        throw NegativeDimensionException();
+      if ( h < 0)
+        throw NegativeDimensionException();
+      if (channels < 0)
+        throw NegativeDimensionException();
+
+      w_ = w; h_ = h; channels_ = channels;
+      
+      strides_[0] = 1;
+      nElements_ *= w;
+      if (h>0){
+        strides_[1] = w;
+        nElements_ *= h;
+      } else{
+        return;
+      }
+
+      if (channels > 0){
+        strides_[2] = w*h;
+        nElements_ *= channels;
+      } else{
+        return;
+      }
+      
+    }
+
+    void Image::fill(float val){
+      for (int i=0; i<nElements_; ++i){
+        data[i] = val;
+      }
+    }
+
+    void Image::fill(int nx, int ny, float val){
+      //todo: check bounds
+    }
+
+    void Image::fill_channel(int c, float val) {
+      assert(0 < c && c < channels());
+      int n = this->w() * this->h();
+      for (int x = strides_[1]*c; x< n; ++x){
+        data[x] = val;
+      }
+    }
 
 }

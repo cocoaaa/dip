@@ -3,7 +3,7 @@
 #include <iostream>
 #include <pangolin/pangolin.h>
 #include <Eigen/Dense>
-#include "Image.h"
+#include "../include/Image.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -18,7 +18,8 @@ int main(){
   };
 
   int w, h, bpp;
-  unsigned char *rgb_image = stbi_load("../data/boston1.jpeg", &w, &h, &bpp, 0);
+  unsigned char *rgb_image1 = stbi_load("../data/boston1.jpeg", &w, &h, &bpp, 0);
+  unsigned char *rgb_image2 = stbi_load("../data/boston10.jpeg", &w, &h, &bpp, 0);
 
 //  uint8_t *rgb_image = stbi_load("../data/boston1.jpeg", &w, &h, &bpp, 0);
 //  stbi_image_free(rgb_image);
@@ -30,55 +31,52 @@ int main(){
   // 3D Mouse handler requires depth testing to be enabled
   glEnable(GL_DEPTH_TEST);
 
-  pangolin::OpenGlRenderState s_cam(
-      pangolin::ProjectionMatrix(640,480,420,420,320,240,0.1,1000),
-      pangolin::ModelViewLookAt(-1,1,-1, 0,0,0, pangolin::AxisY)
-  );
 
-  // Aspect ratio allows us to constrain width and height whilst fitting within specified
-  // bounds. A positive aspect ratio makes a view 'shrink to fit' (introducing empty bars),
-  // whilst a negative ratio makes the view 'grow to fit' (cropping the view).
-  pangolin::View& d_cam = pangolin::Display("cam")
-      .SetBounds(0,1.0f,0,1.0f,-640/480.0)
-      .SetHandler(new pangolin::Handler3D(s_cam));
+  pangolin::View& d_image1 = pangolin::Display("image1")
+      .SetAspect(640/480.0f);
 
-  // This view will take up no more than a third of the windows width or height, and it
-  // will have a fixed aspect ratio to match the image that it will display. When fitting
-  // within the specified bounds, push to the top-left (as specified by SetLock).
-  pangolin::View& d_image = pangolin::Display("image")
-      .SetBounds(2/3.0f,1.0f,0,1/3.0f,640.0/480)
-      .SetLock(pangolin::LockLeft, pangolin::LockTop);
+  pangolin::View& d_image2 = pangolin::Display("image2")
+      .SetAspect(640/480.0f);
 
-  std::cout << "Resize the window to experiment with SetBounds, SetLock and SetAspect." << std::endl;
-  std::cout << "Notice that the cubes aspect is maintained even though it covers the whole screen." << std::endl;
-//
-//  const int width =  64;
-//  const int height = 48;
-//
-//  unsigned char* imageArray = new unsigned char[3*width*height];
-  pangolin::GlTexture imageTexture(w,h,GL_RGB,false,0,GL_RGB,GL_UNSIGNED_BYTE);
+
+  // LayoutEqual is an EXPERIMENTAL feature - it requires that all sub-displays
+  // share the same aspect ratio, placing them in a raster fasion in the
+  // viewport so as to maximise display size.
+  pangolin::Display("multi")
+      .SetBounds(0.0, 1.0, 0.0, 1.0)
+      .SetLayout(pangolin::LayoutEqual)
+      .AddDisplay(d_image1)
+      .AddDisplay(d_image2);
+
+  pangolin::GlTexture
+      imageTexture1(w,h,GL_RGB,false,0,GL_RGB,GL_UNSIGNED_BYTE),
+      imageTexture2(w,h,GL_RGB,false,0,GL_RGB,GL_UNSIGNED_BYTE);
+
+  //upload image data to GPU
+  imageTexture1.Upload(rgb_image1,GL_RGB,GL_UNSIGNED_BYTE);
+  imageTexture2.Upload(rgb_image2,GL_RGB,GL_UNSIGNED_BYTE);
+
   // Default hooks for exiting (Esc) and fullscreen (tab).
   while(!pangolin::ShouldQuit())
   {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    d_cam.Activate(s_cam);
-
-    glColor3f(1.0,1.0,1.0);
-    pangolin::glDrawColouredCube();
-
-    //Set some random image data and upload to GPU
-    imageTexture.Upload(rgb_image,GL_RGB,GL_UNSIGNED_BYTE);
 
     //display the image
-    d_image.Activate();
+    d_image1.Activate();
     glColor3f(1.0,1.0,1.0);
-    imageTexture.RenderToViewport();
+    imageTexture1.RenderToViewport();
+
+    //display the image
+    d_image2.Activate();
+    glColor3f(1.0,1.0,1.0);
+    imageTexture2.RenderToViewport();
 
     pangolin::FinishFrame();
   }
 
-  delete[] rgb_image;
+  delete[] rgb_image1;
+  delete[] rgb_image2;
 
   return 0;
 

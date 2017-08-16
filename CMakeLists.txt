@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 2.8.12)
 # Every project needs a name.  We call this the "examples" project.
 project(dip)
 
+# Add include directory for the .h file search path
+include_directories(include)
 
 # Tell cmake we will need dlib.  This command will pull in dlib and compile it
 # into your project.  Note that you don't need to compile or install dlib.  All
@@ -19,6 +21,13 @@ include_directories(${EIGEN3_INCLUDE_DIR})
 # PANGOLIN
 find_package(Pangolin REQUIRED)
 include_directories(${Pangolin_INCLUDE_DIRS})
+MESSAGE(STATUS "pangolin include: ${Pangolin_INCLUDE_DIRS}")
+
+
+# OpenCV
+find_package(Opencv REQUIRED)
+MESSAGE(STATUS "Include dirs ${OpenCV_INCLUDE_DIRS}")
+MESSAGE(STATUS "LINK LIBRARIES ${OpenCV_LIBS}")
 
 #message(${Pangolin_LIBRARIES})
 #message(${Pangolin_CONFIG})
@@ -31,9 +40,15 @@ include_directories(${Pangolin_INCLUDE_DIRS})
 # are going to compile one of the dlib example programs which has only one .cpp
 # file, assignment_learning_ex.cpp.  If your program consisted of multiple .cpp
 # files you would simply list them here in the add_executable() statement.  
-set(SRCS #src/main.cpp
-         src/glad.c
-         src/Image.h src/Image.cpp src/helloWindow.cpp)
+set(SRCS
+#        src/main.cpp
+#         src/glad.c
+        include/Image.h src/Image.cpp
+         test/test_image.cpp
+#         experiments/helloOpenCV.cpp
+#         src/helloWindow.cpp
+
+        )
 add_executable(main ${SRCS})
 # Finally, you need to tell CMake that this program, assignment_learning_ex,
 # depends on dlib.  You do that with this statement: 
@@ -43,6 +58,7 @@ target_link_libraries(main
         ${GLFW_LIBRARIES}
         ${Eigen_LIBRARIES}
         ${Pangolin_LIBRARIES}
+        ${OpenCV_LIBS}
         )
 #Note: Eigen_LIBRARIES is not required
 
