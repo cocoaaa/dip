@@ -11,7 +11,7 @@ include_directories(include)
 # it needs is the dlib source code folder and it will take care of everything.
 #include(/Local/Users/hjsong/Playground/dlib/dlib/cmake)
 
-# Header files from online sources
+# Header files from external/online sources
 include_directories(external external/glad/include)
 
 # Eigen
@@ -43,8 +43,10 @@ MESSAGE(STATUS "LINK LIBRARIES ${OpenCV_LIBS}")
 set(SRCS
 #        src/main.cpp
 #         src/glad.c
+        external/lodepng.cpp
         include/Image.h src/Image.cpp
-         test/test_image.cpp
+        include/proc.h src/proc.cpp
+        test/test_image_proc.cpp
 #         experiments/helloOpenCV.cpp
 #         src/helloWindow.cpp
 
