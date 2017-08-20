@@ -1,5 +1,6 @@
 
 cmake_minimum_required(VERSION 2.8.12)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 # Every project needs a name.  We call this the "examples" project.
 project(dip)
 
@@ -12,27 +13,23 @@ include_directories(include)
 #include(/Local/Users/hjsong/Playground/dlib/dlib/cmake)
 
 # Header files from external/online sources
-include_directories(external external/glad/include)
+include_directories(external
+#        external/glad/include
+        )
 
 # Eigen
-find_package(Eigen3 REQUIRED)
-include_directories(${EIGEN3_INCLUDE_DIR})
+#find_package(Eigen3 REQUIRED)
+#include_directories(${EIGEN3_INCLUDE_DIR})
 
 # PANGOLIN
 find_package(Pangolin REQUIRED)
 include_directories(${Pangolin_INCLUDE_DIRS})
 MESSAGE(STATUS "pangolin include: ${Pangolin_INCLUDE_DIRS}")
 
-
 # OpenCV
-find_package(Opencv REQUIRED)
-MESSAGE(STATUS "Include dirs ${OpenCV_INCLUDE_DIRS}")
-MESSAGE(STATUS "LINK LIBRARIES ${OpenCV_LIBS}")
-
-#message(${Pangolin_LIBRARIES})
-#message(${Pangolin_CONFIG})
-#include_directories(${Pangolin_DIR/include} ${Pangolin_INCLUDE_DIR}/../../include)
-#ADD_DEFINITIONS(-D DLIB_NO_GUI_SUPPORT=0)
+#find_package(Opencv REQUIRED)
+#MESSAGE(STATUS "Include dirs ${OpenCV_INCLUDE_DIRS}")
+#MESSAGE(STATUS "LINK LIBRARIES ${OpenCV_LIBS}")
 
 # The next thing we need to do is tell CMake about the code you want to
 # compile.  We do this with the add_executable() statement which takes the name
@@ -41,30 +38,32 @@ MESSAGE(STATUS "LINK LIBRARIES ${OpenCV_LIBS}")
 # file, assignment_learning_ex.cpp.  If your program consisted of multiple .cpp
 # files you would simply list them here in the add_executable() statement.  
 set(SRCS
+        #contains main
 #        src/main.cpp
-#         src/glad.c
+        #        test/test_image_proc.cpp
+        #         experiments/helloOpenCV.cpp
+        test/test_pangolin_plot.cpp
+        #        test/test_glWindow.cpp #needs src/glad.c and target_link_libraries with glfw
+
+#        src/glad.c
         external/lodepng.cpp
-        include/Image.h src/Image.cpp
-        include/proc.h src/proc.cpp
-        test/test_image_proc.cpp
-#         experiments/helloOpenCV.cpp
-#         src/helloWindow.cpp
+         src/Image.cpp
+         src/proc.cpp
+
 
         )
+
 add_executable(main ${SRCS})
 # Finally, you need to tell CMake that this program, assignment_learning_ex,
 # depends on dlib.  You do that with this statement: 
 target_link_libraries(main
 #        dlib::dlib
-        glfw
-        ${GLFW_LIBRARIES}
-        ${Eigen_LIBRARIES}
+#        glfw
+#        ${Eigen_LIBRARIES}
         ${Pangolin_LIBRARIES}
-        ${OpenCV_LIBS}
+#        ${OpenCV_LIBS}
         )
 #Note: Eigen_LIBRARIES is not required
-
-
 
 # To compile this program all you need to do is ask cmake.  You would type
 # these commands from within the directory containing this CMakeLists.txt

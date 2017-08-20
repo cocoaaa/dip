@@ -8,11 +8,13 @@
 #include "Image.h"
 
 namespace dip{
-    Image& contrast(const Image &im,
-                    Image &out,
-                    const float midpoint,
-                    const float factor);
+    void contrast(const Image &im, Image &out, const float midpoint, const float factor);
 
+    void equalize_histogram(
+        const Image &im,
+        Image &im_out,
+        std::vector<int> &hist_out,
+        float binWidth = 0.01);
 
 
 }

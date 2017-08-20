@@ -35,12 +35,16 @@ namespace dip {
       bool operator!=(const Image &other) const;
 
       // Fill functions
-      void fill(float val=0.0f);
-      void fill(int x0, int nx, int y0, int ny, float val=0.0f); // fills all channels of the image in [x0,x0+nx-1] by [y0,y0+nx-1]
-      void fill(int nx, int ny, float val=0.0f); // fills all channles of the image in [0, nx) by [0, ny)
-      void fill_channel(const size_t c, float val);
+      void fill(const float val=0.0f);
 
-      // load and write images
+      void fill(int x0, int nx, int y0, int ny, float val=0.0f); // fills all channels of the image in [x0,x0+nx-1] by [y0,y0+nx-1]
+      void fill(const size_t nx, const size_t ny, const float val=0.0f); // fills all channles of the image in [0, nx) by [0, ny)
+      void fill_channel(const size_t c, const float val);
+
+      // Histogram
+      void histogram(std::vector<int> &counts, float binWidth) const;
+
+        // load and write images
       void write(const std::string &filename) const;
       void debugwrite() const;
       Image & load_jpg(const std::string &fname);

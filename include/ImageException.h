@@ -29,5 +29,13 @@ public:
 OutofBoundsException(): std::runtime_error("Image index is out of bounds."){}
 };
 
+class BinWidthException: public std::runtime_error{
+public:
+  BinWidthException(): std::runtime_error("Bin Width must be in [0,1] range.\n"){}
+};
 
+class PixelValueException: public std::runtime_error{
+public:
+  PixelValueException(): std::runtime_error("Float pixel Value must be in [0,1] range.\n"){}
+};
 #endif //DIP_IMAGEEXCEPTION_H

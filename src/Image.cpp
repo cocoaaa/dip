@@ -12,6 +12,7 @@
 #include <string>
 #include <cassert> //for assert()
 #include <vector>
+#include <cmath> // ceil and floor
 #include "lodepng.h"
 #include "Image.h"
 #include "ImageException.h"
@@ -206,17 +207,32 @@ namespace dip{
       debugnumber ++;
     }
 
-    void Image::fill(float val){
+
+    // Fill functions
+    //------------------------------------------
+    void Image::fill(const float val){
       for (int i=0; i<nElements_; ++i){
         data[i] = val;
       }
     }
 
-    void Image::fill(int nx, int ny, float val){
+    void Image::fill(const size_t nx, const size_t ny, const float val){
       //todo: check bounds
+      if ( val < 0 || val > 1)
+        throw PixelValueException();
+      if ( nx > w_ || ny > h_)
+        throw OutofBoundsException();
+      for (int c=0; c < channels_; ++c) {
+        for (int y=0; y < ny; ++y) {
+          for (int x=0; x < nx; ++x) {
+            data[x + y*w_ + c*w_*h_] = val;
+          }
+        }
+      }
+
     }
 
-    void Image::fill_channel(const size_t c, float val){
+    void Image::fill_channel(const size_t c, const float val){
       if (c >= channels() ){
         throw OutofBoundsException();
       }
@@ -229,7 +245,32 @@ namespace dip{
 
     }
 
+    // Histogram
+    //-------------------------------------------
+    void Image::histogram(std::vector<int> &counts, float binWidth) const {
+      // Assumes all pixel values are in [0,1]
+      if (binWidth < 0 || binWidth > 1){
+        throw BinWidthException();
+      }
+      std::cout << "binWidth: " << binWidth << std::endl;
+      int nBins =  std::floor(1.0f/binWidth) + 1; // last bin for value of 1.0f
+
+      // resize counts and set values to zero
+      if (counts.size() != nBins){
+        std::vector<int>(nBins).swap(counts);
+      } else{
+        std::fill(counts.begin(), counts.end(), 0);
+      }
+
+      // if val is in [0+binWidth*i, 0+binWidth*(i+1)), val is assigned to ith bin
+      // that is, i = integer part of (val/binWidth)
+      for (int i=0; i< nElements(); ++i){
+        counts[ floor(data[i]/binWidth) ] ++;
+      }
+    }
+
     // Helper functions for I/O
+    //-------------------------------------------
     float uint8_to_float(const uint8_t &x) {
       return ((float)x) / 255.0f;
     }

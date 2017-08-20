@@ -4,7 +4,9 @@
 
 #include <iostream>
 #include <vector>
+#include <cmath>
 #include "Image.h"
+#include "proc.h"
 
 namespace dip{
 
@@ -21,33 +23,18 @@ namespace dip{
           out(i) = 1;
       }
     }
-//todo: make it as a member of Image class?
-    void histogram(const Image &im, std::vector<int> &counts, float binWidth ){
-      std::cout << "binWidth: " << binWidth << std::endl;
-      // resize counts and set values to zero
-      int nBins =  ceil(1/binWidth);
-      if (counts.size() != nBins){
-        std::vector<int>(nBins).swap(counts);
-      } else{
-        std::fill(counts.begin(), counts.end(), 0);
-      }
 
-      // if val is in [0+binWidth*i, 0+binWidth*(i+1)), val is assigned to ith bin
-      // that is, i = integer part of (val/binWidth)
-      for (int i=0; i<im.nElements(); ++i){
-        counts[ floor(im(i)/binWidth) ] ++;
-      }
-    }
-
-    void equalize_histogram(const Image &im, Image &im_out, std::vector<int> &hist_out){
-      float binWidth = 0.1;//todo
+    void equalize_histogram(const Image &im,
+                            Image &im_out,
+                            std::vector<int> &hist_out,
+                            float binWidth){
       std::vector<int> in; //todo rename it to hist1
-      histogram(im, in, binWidth );
-      std::vector<int>(in.size()).swap(out);
+      im.histogram( in, binWidth );
+      std::vector<int>(in.size()).swap(hist_out);
 
-      //todo: set im_out ready for the output
+      // set im_out ready for the output
       if (im_out.nElements() != im.nElements()){
-        im_out.reinit_all(im.w(), im.h(), im.c());
+        im_out.reinit_all(im.w(), im.h(), im.channels());
       }
       std::vector<int> accum(in.size(),0);
 
@@ -55,13 +42,19 @@ namespace dip{
       for (int i = 1; i< in.size(); ++i){
         accum[i] = accum[i-1] + in[i];
       }
+//      std::cout << "---accumulator---" << std::endl;
+//      for (int i=0; i<accum.size(); ++i){
+//        std::cout << accum[i] << ", ";
+//      }
+//
+//      std::cout << "\n----------------------------" << std::endl;
+
 
       for (int i = 0; i< im.nElements(); ++i){
-        im_out(i) = accum[ floor(im(i)/binWidth) ];
-      }
+        im_out(i) = (255.0f/256) * ( accum[std::floor(im(i)/binWidth)]/float(im.nElements()) ) ;
+      }//todo: check if L-1 in Sapiro's note corresponds to 255/256.f
 
-      histogram(im_out, hist_out, binWidth); //todo: return im_out and hist_out by reference?
-
+      im_out.histogram(hist_out, binWidth);
     }
 
 
