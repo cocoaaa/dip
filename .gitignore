@@ -4,6 +4,9 @@
 #Project files
 [Bb]uild/
 
+#Data/Images
+data/
+
 #IDE
 .idea/
 cmake-build-debug/
