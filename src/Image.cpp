@@ -12,12 +12,13 @@
 #include <string>
 #include <cassert> //for assert()
 #include <vector>
-#include <cmath> // ceil and floor
+#include <cmath> // ceil and floor, std::abs, std::exp
 #include "lodepng.h"
 #include "Image.h"
 #include "ImageException.h"
 
 namespace dip{
+
     // Constructs a black image with given dimensions
     Image::Image(int width, int height, int channels){
 
@@ -72,17 +73,18 @@ namespace dip{
       }
     }
 
-
     // (private) static data member is recommended to be defined in cpp
     // to prevent double definition if in .h file
     int Image::debugnumber = 0; // note no "static" keyword used here.
 
+    // Operator overloading
+    // -------------------------------------------------------------------------
     float& Image::operator()(size_t i){
       if (i<0 || i>=nElements_)
         throw OutofBoundsException();
       return data[i];
     }
-    
+
     float& Image::operator()(size_t x, size_t y, size_t c) {
       return data.at(x + y*strides_[1] + c*strides_[2]);
     }
@@ -93,7 +95,7 @@ namespace dip{
         throw OutofBoundsException();
       return data[i];
     }
-    
+
     const float& Image::operator()(size_t x, size_t y, size_t c) const {
       return data.at(x + y*strides_[1] + c*strides_[2]);
     }
@@ -103,15 +105,11 @@ namespace dip{
       std::cout << "assignment operator" << std::endl;
       init_meta(other.w(), other.h(), other.channels());
       assert( nElements_ == other.nElements() );
-      std::cout << "here" << std::endl;
       data.resize(nElements_);
-      std::cout << "here2" << std::endl;
 
       for (size_t i=0; i<nElements_; ++i ){
         data[i] = other(i);
       }
-
-
       return *this;
     }
 
@@ -129,6 +127,75 @@ namespace dip{
 
     bool Image::operator!=(const Image &other) const{
       return !(*this == other);
+    }
+
+    Image Image::operator+(const Image &other) const{
+      if (w_ != other.w() ||
+          h_ != other.h() ||
+          channels_ != other.channels()){
+        throw MismatchedDimensionsException();
+      }
+
+      Image out(w_, h_, channels_);
+      for (size_t i=0; i < channels_; ++i){
+        out(i) = data[i] + other(i);
+      }
+
+      return out;
+    }
+
+    Image Image::operator*(const float f) const{
+      //todo: use typedef to generalize float
+      Image out(w_, h_, channels_);
+      for (int i=0; i< nElements_; ++i){
+        out(i) = f*data[i];
+      }
+      return out;
+    }
+
+    Image Image::operator-(const Image &other) const{
+      //debug
+      Image out;
+      out = other * -1.0f;
+      std::cout << "--- DEBUG OPERATOR -" << std::endl;
+      out.info();
+      return out;
+      // remove until here
+//      return this->operator+(other * -1.0f);
+    }
+
+    Image Image::operator/(const float f) const{
+      if (std::abs(f) < std::exp(10))
+        throw DivideByZeroException();
+      Image out;
+      out = this->operator*(1/f);
+      return out;
+    }
+
+    // Smart Accessor
+    float Image::smartAccessor(int x, int y, int c, bool clamp) const{
+
+      if (x <0 || x > w_-1 || y < 0 || y > h_-1 || c < 0 || c > channels_){
+        int x_offset(0), y_offset(0);
+
+        // access out of bound pixels
+        if (clamp){
+          // return the "closest" pixel value
+          if (std::abs(-x) < std::abs(w_-1 - x)){ x_offset = -x; }
+          else{ x_offset = w_-1 - x; }
+
+          if (std::abs(-y) < std::abs(h_-1 - y)){ y_offset = -y; }
+          else{ y_offset = h_-1 - y; }
+
+          x += x_offset;
+          y += y_offset;
+        }
+        else{
+          // otherwise zero-padding
+          return 0.0f;
+        }
+      }
+      return data[ x + y*w_ + c*w_*h_];
     }
 
     void Image::init_meta(int w, int h, int channels){
@@ -173,11 +240,14 @@ namespace dip{
     }
 
     void Image::info() const {
+      std::cout << "--IMAGE INFO--" << std::endl;
       std::cout << "w, h, channels: " << w() << ", " << h() << ", " << channels() << std::endl;
-      std::cout << "nElements: " << nElements() << std::endl;
-      std::cout << std::endl;
+      std::cout << "nElements: " << nElements_ << std::endl;
+      std::cout << "--------------" << std::endl;
     }
 
+    // Write functions
+    //--------------------------------------------------------------------------
     void Image::write(const std::string &filename) const {
       if (channels() != 1 && channels() != 3 && channels() != 4)
 //        throw ChannelException();
@@ -209,7 +279,7 @@ namespace dip{
 
 
     // Fill functions
-    //------------------------------------------
+    //--------------------------------------------------------------------------
     void Image::fill(const float val){
       for (int i=0; i<nElements_; ++i){
         data[i] = val;
@@ -246,7 +316,7 @@ namespace dip{
     }
 
     // Histogram
-    //-------------------------------------------
+    //--------------------------------------------------------------------------
     void Image::histogram(std::vector<int> &counts, float binWidth) const {
       // Assumes all pixel values are in [0,1]
       if (binWidth < 0 || binWidth > 1){
@@ -270,7 +340,7 @@ namespace dip{
     }
 
     // Helper functions for I/O
-    //-------------------------------------------
+    //--------------------------------------------------------------------------
     float uint8_to_float(const uint8_t &x) {
       return ((float)x) / 255.0f;
     }

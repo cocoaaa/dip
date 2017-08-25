@@ -6,7 +6,7 @@
 
 #include <Eigen/Dense>
 #include "Image.h"
-
+#include "imageOperations.h"
 int main(){
   dip::Image im_default;
   std::cout << "Default constructor: grayscale, 10 by 10. num of elements: "
@@ -31,7 +31,6 @@ int main(){
   std::cout << "true: " << (im_default == dip::Image() ) << ", "
             << (im_gray == dip::Image(100,100)) << ", "
             << (im_red == dip::Image(50,50,3));
-  //todo: check other operators
 
   // Test accessor and setter
   im_default(0) = 1.0f;
@@ -47,6 +46,27 @@ int main(){
 
   dip::Image im_loaded("../data/lenna.png");
   im_loaded.write("./output/l.png");
+
+  // Test copy constructor
+  dip::Image im_red2(im_red);
+  im_red2.write("./output/red2.png");
+
+  // Test return of copy constructed object
+  std::cout << "----------" << std::endl;
+  dip::Image im_green2(im_green); // no error. but error if dip::Image(im_green) -- why?
+  std::cout << "copy constructed: green" << std::endl;
+
+  std::cout << "----------test: anonymous object" << std::endl;
+  dip::Image im_test;
+  im_test.write("./output/myimg.png");
+
+  im_test.fill_channel(0,1.0f); im_test.write("./output/myimg_white.png");
+  (im_test*0.5f).write("./output/myimg_gray.png");
+  (0.5f*im_test).write("./output/myimg_gray2.png");
+
+  //todo: check other operators
+
+
 
 
 

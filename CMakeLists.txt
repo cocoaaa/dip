@@ -43,14 +43,15 @@ set(SRCS
         #        test/test_image_proc.cpp
         #         experiments/helloOpenCV.cpp
         #        test/test_glWindow.cpp #needs src/glad.c and target_link_libraries with glfw
-
-        test/test_print.cpp
-        #        test/test_pangolin_plot.cpp
+#        test/test_image.cpp
+#                test/test_pangolin_plot.cpp
+        test/test_imageOperations.cpp
 
 #        src/glad.c
         external/lodepng.cpp
-         src/Image.cpp
-         src/proc.cpp
+        src/Image.cpp
+        src/imageOperations.cpp
+        src/proc.cpp
 
 
         )

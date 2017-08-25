@@ -15,6 +15,7 @@ namespace dip {
     class Image {
 
     public:
+
       Image(int width=10, int height=10, int channels=1);
       Image(const std::string &filename);
       Image(Image &other);//copy constructor
@@ -25,18 +26,35 @@ namespace dip {
       int channels() const {return channels_;}
       long long nElements() const {return nElements_;}
 
+
+      // Pixel accessors
+      // -----------------------------------------------------------------------
       float& operator()(size_t i);
       float& operator()(size_t x, size_t y, size_t c);
       const float& operator()(size_t i) const;
-      const float& operator()(size_t x, size_t y, size_t c) const; // for constant objects. still don't know why we need this
+      const float& operator()(size_t x, size_t y, size_t c) const;
+      // for constant objects. still don't know why we need this
+      float Image::smartAccessor(int x, int y, int c, bool clamp) const;
 
+
+        // Operator overloading
+      // -----------------------------------------------------------------------
       Image & operator=(const Image &other);
       bool operator==(const Image &other) const;
       bool operator!=(const Image &other) const;
 
-      // Fill functions
-      void fill(const float val=0.0f);
+      Image operator+(const Image &other) const;
+      Image operator-(const Image &other) const;
+      Image operator*(const Image &other) const;
+      Image operator/(const Image &other) const;
 
+      Image operator*(const float f) const;
+      Image operator/(const float f) const;
+
+
+      // Fill functions
+      // -----------------------------------------------------------------------
+      void fill(const float val=0.0f);
       void fill(int x0, int nx, int y0, int ny, float val=0.0f); // fills all channels of the image in [x0,x0+nx-1] by [y0,y0+nx-1]
       void fill(const size_t nx, const size_t ny, const float val=0.0f); // fills all channles of the image in [0, nx) by [0, ny)
       void fill_channel(const size_t c, const float val);
@@ -44,7 +62,7 @@ namespace dip {
       // Histogram
       void histogram(std::vector<int> &counts, float binWidth) const;
 
-        // load and write images
+      // Load and write images
       void write(const std::string &filename) const;
       void debugwrite() const;
       Image & load_jpg(const std::string &fname);
@@ -71,6 +89,7 @@ namespace dip {
       };
 
     // Helper function for I/O
+    // -------------------------------------------------------------------------
     float uint8_to_float(const uint8_t &x);
     uint8_t float_to_uint8(const float &x);
 }

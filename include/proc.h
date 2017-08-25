@@ -15,8 +15,6 @@ namespace dip{
         Image &im_out,
         std::vector<int> &hist_out,
         float binWidth = 0.01);
-
-
 }
 
 
