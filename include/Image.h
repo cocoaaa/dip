@@ -18,6 +18,7 @@ namespace dip {
 
       Image(int width=10, int height=10, int channels=1);
       Image(const std::string &filename);
+      Image(const std::vector<float> &data, const int w, const int h, const int c);
       Image(Image &other);//copy constructor
       ~Image(){ } // nothing to clean up 
 
@@ -34,7 +35,7 @@ namespace dip {
       const float& operator()(size_t i) const;
       const float& operator()(size_t x, size_t y, size_t c) const;
       // for constant objects. still don't know why we need this
-      float Image::smartAccessor(int x, int y, int c, bool clamp) const;
+      float smartAccessor(int x, int y, int c, bool clamp=true) const;
 
 
         // Operator overloading
@@ -66,6 +67,7 @@ namespace dip {
       void write(const std::string &filename) const;
       void debugwrite() const;
       Image & load_jpg(const std::string &fname);
+      void copyToVec(std::vector<float> &vec) const;
 
       // Meta info
       void info() const;

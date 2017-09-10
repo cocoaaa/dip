@@ -54,6 +54,19 @@ namespace dip{
       init_meta(w, h, outputchannels);
     }
 
+    Image::Image(const std::vector<float> &d, const int w, const int h, const int c){
+      assert( d.size() == w*h*c);
+      init_meta(w,h,c);
+      data = std::vector<float>( w*h*c,0);
+
+      for (size_t i = 0; i < d.size(); ++i){
+        data[i] = d[i];
+      }
+
+
+    }
+
+
     Image::Image(Image &other){
       std::cout << "copy constructor" << std::endl;
 //      if (nElements_ != other.nElements()){
@@ -276,6 +289,16 @@ namespace dip{
       write(fname);
       debugnumber ++;
     }
+
+    void Image::copyToVec(std::vector<float> &vec) const{
+      if (vec.size() != nElements_){
+        vec.resize(nElements_);
+      };
+      for (size_t i = 0; i<nElements_; ++i){
+        vec[i] = data[i];
+      }
+    }
+
 
 
     // Fill functions
