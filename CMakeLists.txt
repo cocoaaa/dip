@@ -20,6 +20,8 @@ include_directories(external
 # Eigen
 #find_package(Eigen3 REQUIRED)
 #include_directories(${EIGEN3_INCLUDE_DIR})
+#MESSAGE(STATUS "eigen3 include: ${EIGEN3_INCLUDE_DIRS}")
+
 
 # PANGOLIN
 find_package(Pangolin REQUIRED)
@@ -52,6 +54,7 @@ set(SRCS
         src/Image.cpp
         src/imageOperations.cpp
         src/proc.cpp
+        src/levelset.cpp
 
 
         )

@@ -12,8 +12,19 @@ namespace dip {
       //todo: velocity
     }
 
-    void Grid::init_phi() {
+    void Grid::init_phi(float radius) {
       //todo: copy from levelset.cpp
+      float magnitude;
+      for (size_t y = 0; y < grid.h(); ++y){
+        for (size_t x = 0; x < grid.w(); ++x){
+          magnitude = std::sqrt(x*x + y*y);
+          grid(x,y,1) = magnitude - radius;
+
+          if ( magnitude < radius) {
+            grid(x,y,1) = -grid(x,y,1);
+          }
+        }
+      }
     }
 
     void Grid::update_phi(float velocity) {
