@@ -2,7 +2,6 @@
 // Created by HayleySong on 7/28/17.
 //
 // todo: use template for the pixel type. Currently it's set to float
-// todo: operator overloading
 // read: how to correctly implement double square bracket to access 2D array
 //       https://stackoverflow.com/questions/2533235/operator-c
 // Default parameter only delong in the declaration in the header file, not in the implementation in the cpp file.
@@ -19,12 +18,14 @@
 
 namespace dip{
 
+    Image::Image(){
+      init_meta(0, 0, 0);
+//      data = std::vector<float>(nElements_,0);//todo: do I need this?
+    }
     // Constructs a black image with given dimensions
     Image::Image(int width, int height, int channels){
-
       init_meta(width, height, channels);
       data = std::vector<float>(nElements_,0);
-
     }
 
     // Taken from 6.865 Image class. Uses lodepng
@@ -54,16 +55,15 @@ namespace dip{
       init_meta(w, h, outputchannels);
     }
 
-    Image::Image(const std::vector<float> &d, const int w, const int h, const int c){
-      assert( d.size() == w*h*c);
+    Image::Image(const std::vector<float> &d,
+                 const int w, const int h, const int c){
       init_meta(w,h,c);
-      data = std::vector<float>( w*h*c,0);
+      assert( d.size() == nElements_);
+      data = std::vector<float>( nElements_,0);
 
       for (size_t i = 0; i < d.size(); ++i){
         data[i] = d[i];
       }
-
-
     }
 
 
@@ -99,7 +99,10 @@ namespace dip{
     }
 
     float& Image::operator()(size_t x, size_t y, size_t c) {
-      return data.at(x + y*strides_[1] + c*strides_[2]);
+      std::cout << "w,h: " << w_ << ", " << h_ << std::endl;
+      std::cout << "trying accessing: " << x*strides_[0]+y*strides_[1]+strides_[2]*c << std::endl;
+      std::cout << "totoal nElements: " << nElements_ << std::endl;
+      return data.at(x*strides_[0]+y*strides_[1]+strides_[2]*c);
     }
 
     //for const object. still not sure why I need this?
@@ -110,7 +113,8 @@ namespace dip{
     }
 
     const float& Image::operator()(size_t x, size_t y, size_t c) const {
-      return data.at(x + y*strides_[1] + c*strides_[2]);
+
+      return data.at(x + y*w_ + c*w_*h_);
     }
 
     Image & Image::operator=(const Image &other){
@@ -168,20 +172,26 @@ namespace dip{
 
     Image Image::operator-(const Image &other) const{
       //debug
-      Image out;
-      out = other * -1.0f;
-      std::cout << "--- DEBUG OPERATOR -" << std::endl;
-      out.info();
-      return out;
-      // remove until here
 //      return this->operator+(other * -1.0f);
+      //todo: write a mismatchDimension error
+      assert(w_ == other.w() &&
+             h_ == other.h() &&
+             channels_ == other.channels());
+
+      Image out(w_, h_, channels_);
+      for (size_t i = 0; i < nElements_; i++){
+        out(i) -= other(i);
+      }
+      return out;
     }
 
     Image Image::operator/(const float f) const{
       if (std::abs(f) < std::exp(10))
         throw DivideByZeroException();
-      Image out;
-      out = this->operator*(1/f);
+      Image out(w_,h_,channels_);
+      for (size_t i = 0; i < nElements_; ++i){
+        out(i) /= f;
+      }
       return out;
     }
 
@@ -219,7 +229,6 @@ namespace dip{
       strides_[2] = 0;
       nElements_ = 0; //todo: check if this is a right way to indicate a correctly initialized image object
 
-
       if ( w < 0) 
         throw NegativeDimensionException();
       if ( h < 0)
@@ -247,8 +256,7 @@ namespace dip{
     }
 
     void Image::reinit_all(int w, int h, int c){
-      w_ = w; h_ = h; channels_ = c;
-      nElements_ = w*h*c;
+      init_meta(w,h,c);
       data = std::vector<float>(nElements_, 0);
     }
 

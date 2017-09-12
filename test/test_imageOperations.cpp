@@ -21,5 +21,11 @@ int main(){
   dip::Image im_r_copy(vec, im_r.w(), im_r.h(), im_r.channels());
   im_r_copy.write("./output/rcopy.png");
 
+  int k = 11;
+  dip::Image impulse;
+  impulse = dip::getImpulse(k);
+  impulse.write("./output/impulse.png");
+//
+
 }
 

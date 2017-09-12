@@ -7,10 +7,14 @@
 #include <Eigen/Dense>
 #include "Image.h"
 #include "imageOperations.h"
+
 int main(){
   dip::Image im_default;
-  std::cout << "Default constructor: grayscale, 10 by 10. num of elements: "
+  std::cout << "Default constructor: everything set by default "
             << im_default.nElements() << std::endl;
+
+  dip::Image im_1d(100);
+  im_1d.write("./output/1d_100.png");
 
   dip::Image im_gray(100,100);
   im_gray.fill_channel(0, 0.5f);

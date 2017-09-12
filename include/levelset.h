@@ -8,10 +8,10 @@
 #include "Image.h"
 
 namespace dip{
-    Image getLevelSet(const Image &grid,
-                      float zlevel=0.0f,
-                      float threshold=std::exp(6));
-
+    void getLevelSet(const Image &grid,
+                     Image &out,
+                     float zlevel=0.0f,
+                     float threshold=std::exp(6));
     }
 
 #endif //DIP_LEVELSET_H

@@ -22,6 +22,8 @@ namespace dip{
     void gradY(const Image &im, Image &out, int firstDerivOption=1, bool clamp=true);
     void gradMag(const Image &gradX, const Image &gradY, Image &out);
 
+    // Generate impluse image of k x k x 1 size
+    Image getImpulse(int k);
     }
 
 

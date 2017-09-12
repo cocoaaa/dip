@@ -16,7 +16,11 @@ namespace dip {
 
     public:
 
-      Image(int width=10, int height=10, int channels=1);
+      Image();
+      // Constructor to initialize an image of size width_*height_*channels_
+      // If height_ and channels_ are zero, the image will be one dimensional
+      // If channels_ is zero, the image will be two dimensional
+      Image(int width, int height=0, int channels=0);
       Image(const std::string &filename);
       Image(const std::vector<float> &data, const int w, const int h, const int c);
       Image(Image &other);//copy constructor
@@ -45,8 +49,8 @@ namespace dip {
       bool operator!=(const Image &other) const;
 
       Image operator+(const Image &other) const;
-      Image operator-(const Image &other) const;
       Image operator*(const Image &other) const;
+      Image operator-(const Image &other) const;
       Image operator/(const Image &other) const;
 
       Image operator*(const float f) const;
@@ -76,7 +80,7 @@ namespace dip {
       void reinit_all(int w, int h, int c);
 
 
-    private:
+    protected:
       std::vector<float> data;
       int w_;
       int h_;

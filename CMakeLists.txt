@@ -52,6 +52,7 @@ set(SRCS
 #        src/glad.c
         external/lodepng.cpp
         src/Image.cpp
+        src/Grid.cpp
         src/imageOperations.cpp
         src/proc.cpp
         src/levelset.cpp
