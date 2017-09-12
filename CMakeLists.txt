@@ -18,9 +18,9 @@ include_directories(external
         )
 
 # Eigen
-#find_package(Eigen3 REQUIRED)
-#include_directories(${EIGEN3_INCLUDE_DIR})
-#MESSAGE(STATUS "eigen3 include: ${EIGEN3_INCLUDE_DIRS}")
+find_package(Eigen3 REQUIRED)
+include_directories(${EIGEN3_INCLUDE_DIR})
+MESSAGE(STATUS "eigen3 include: ${EIGEN3_INCLUDE_DIRS}")
 
 
 # PANGOLIN

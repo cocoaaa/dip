@@ -11,18 +11,31 @@
 namespace dip{
     class Filter {
 
-    Filter(){};
-    Filter(int w, int h, bool clamp=ture);
+    Filter();
+    Filter(int w, int h);
+    Filter(std::vector<float> vec, int w, int h);
+    ~Filter() { };
 
-    Image convolve(const Image &im) const;
+    // Convolution
+    Image convolve(const Image &im, bool clamp=true) const;
 
-    private:
+    // Kernel access function
+    const float operator()(int x, int y) const;
+    float operator()(int x, int y);
+
+    // Show kernel
+    void info() const;
+
+
+
+    // protected:
       int w_, h_;
       int ksize;
       std::vector<float> kernel;
+
+
+
     };
-
-
 
 }
 
