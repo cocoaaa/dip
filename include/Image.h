@@ -40,6 +40,8 @@ namespace dip {
       const float& operator()(size_t x, size_t y, size_t c) const;
       // for constant objects. still don't know why we need this
       float smartAccessor(int x, int y, int c, bool clamp=true) const;
+      std::vector< std::vector<int> > neighbors_diag();
+      std::vector< std::vector<int> > neighbors_adj();
 
 
         // Operator overloading
@@ -59,10 +61,10 @@ namespace dip {
 
       // Fill functions
       // -----------------------------------------------------------------------
-      void fill(const float val=0.0f);
+      void fill(float val=1.0f);
       void fill(int x0, int nx, int y0, int ny, float val=0.0f); // fills all channels of the image in [x0,x0+nx-1] by [y0,y0+nx-1]
-      void fill(const size_t nx, const size_t ny, const float val=0.0f); // fills all channles of the image in [0, nx) by [0, ny)
-      void fill_channel(const size_t c, const float val);
+      void fill(int nx, int ny, float val=1.0f); // fills all channles of the image in [0, nx) by [0, ny)
+      void fill_channel(int c, float val);
 
       // Histogram
       void histogram(std::vector<int> &counts, float binWidth) const;

@@ -91,9 +91,7 @@ namespace dip{
     Image impulse(k, k, 1);
     impulse.info();
     int mid = floor(k/2);
-    std::cout << "hereee: " << mid <<std::endl;
     impulse(mid, mid, 0) = 1.0f;
-    std::cout << "!"  << std::endl;
     return impulse;
     std::cout << "impulse created" << std::endl;
   }

@@ -99,9 +99,6 @@ namespace dip{
     }
 
     float& Image::operator()(size_t x, size_t y, size_t c) {
-      std::cout << "w,h: " << w_ << ", " << h_ << std::endl;
-      std::cout << "trying accessing: " << x*strides_[0]+y*strides_[1]+strides_[2]*c << std::endl;
-      std::cout << "totoal nElements: " << nElements_ << std::endl;
       return data.at(x*strides_[0]+y*strides_[1]+strides_[2]*c);
     }
 
@@ -221,6 +218,16 @@ namespace dip{
       return data[ x + y*w_ + c*w_*h_];
     }
 
+    // Neighbor indices in diagonal
+    std::vector<std::vector<int> > Image::neighbors_diag(){
+
+      std::vector<std::vector<int> > neighbors(nElements_, std::vector<int>());
+      for (int y=0; y<h_; ++y){
+        for (int x=0; x<w_; ++x){
+          int i = x + y*w_;
+      return neighbors;
+    }
+
     void Image::init_meta(int w, int h, int channels){
       w_ = w; h_ = h; channels_ = channels;
 
@@ -311,13 +318,19 @@ namespace dip{
 
     // Fill functions
     //--------------------------------------------------------------------------
-    void Image::fill(const float val){
+    void Image::fill(float val){
       for (int i=0; i<nElements_; ++i){
         data[i] = val;
       }
     }
 
-    void Image::fill(const size_t nx, const size_t ny, const float val){
+    void Image::fill(int x0, int nx, int y0, int ny, float val){
+      // fills all channels of the image in [x0,x0+nx-1] by [y0,y0+nx-1]
+  //todo: implement
+    }
+
+
+    void Image::fill(int nx, int ny, float val){
       //todo: check bounds
       if ( val < 0 || val > 1)
         throw PixelValueException();
@@ -326,21 +339,21 @@ namespace dip{
       for (int c=0; c < channels_; ++c) {
         for (int y=0; y < ny; ++y) {
           for (int x=0; x < nx; ++x) {
-            data[x + y*w_ + c*w_*h_] = val;
+            data[x + y*strides_[1] + c*strides_[2]] = val;
           }
         }
       }
 
     }
 
-    void Image::fill_channel(const size_t c, const float val){
+    void Image::fill_channel(int c, float val){
       if (c >= channels() ){
         throw OutofBoundsException();
       }
 
-      for (size_t x = 0; x < w(); ++x){
-        for (size_t y = 0; y < h(); ++y){
-          data[x + y*w_ + c*w_*h_] = val;
+      for (int x = 0; x < w(); ++x){
+        for (int y = 0; y < h(); ++y){
+          data[x + y*strides_[1] + c*strides_[2]] = val;
         }
       }
 

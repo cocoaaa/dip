@@ -7,15 +7,20 @@
 
 #include <vector>
 #include <cmath>
+#include "Image.h"
+#include <Eigen/Dense>
+
 
 namespace dip{
     class Filter {
+    public:
+      Filter();
+      Filter(int w, int h);
+      Filter(const std::vector<float> &vec, int w, int h);
+      Filter(const Eigen::MatrixXf &mtx, int w, int h);
+      ~Filter() { };
 
-    Filter();
-    Filter(int w, int h);
-    Filter(std::vector<float> vec, int w, int h);
-    ~Filter() { };
-
+      void setKernel(const std::vector<float> &vec, int w, int h);
     // Convolution
     Image convolve(const Image &im, bool clamp=true) const;
 
@@ -26,16 +31,32 @@ namespace dip{
     // Show kernel
     void info() const;
 
-
-
     // protected:
+    void reInit(int w, int h, int ksize);
+
       int w_, h_;
       int ksize;
       std::vector<float> kernel;
 
-
-
     };
+
+    // Gaussian Filter
+    class Gaussian : public Filter{
+    public:
+      Gaussian(){ };
+      Gaussian(int w, int h, float sigma, float truncate=3.0f);
+      Gaussian(float sigma, float truncate=3.0f);
+
+
+    private:
+      float sigma_;
+    };
+
+
+    // Gradients
+    std::vector<float> gaussian_1d_values(float sigma, float truncate=3.0f);
+    std::vector<float> gaussian_2d_values(float sigma, float truncate=3.0f);
+
 
 }
 

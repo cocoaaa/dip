@@ -1,21 +1,15 @@
 
 cmake_minimum_required(VERSION 2.8.12)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} -std=c++11 -g")
 # Every project needs a name.  We call this the "examples" project.
 project(dip)
 
 # Add include directory for the .h file search path
 include_directories(include)
 
-# Tell cmake we will need dlib.  This command will pull in dlib and compile it
-# into your project.  Note that you don't need to compile or install dlib.  All
-# it needs is the dlib source code folder and it will take care of everything.
-#include(/Local/Users/hjsong/Playground/dlib/dlib/cmake)
-
 # Header files from external/online sources
-include_directories(external
-#        external/glad/include
-        )
+include_directories(external)
 
 # Eigen
 find_package(Eigen3 REQUIRED)
@@ -27,6 +21,12 @@ MESSAGE(STATUS "eigen3 include: ${EIGEN3_INCLUDE_DIRS}")
 find_package(Pangolin REQUIRED)
 include_directories(${Pangolin_INCLUDE_DIRS})
 MESSAGE(STATUS "pangolin include: ${Pangolin_INCLUDE_DIRS}")
+
+# Matplotlib wrapper
+find_package(PythonLibs 2.7)
+include_directories(${PYTHON_INCLUDE_DIRS})
+MESSAGE(STATUS "Python include: ${PYTHON_INCLUDE_DIRS}")
+MESSAGE(STATUS "Python libraries: ${PYTHON_LIBRARIES}")
 
 # OpenCV
 #find_package(Opencv REQUIRED)
@@ -45,32 +45,48 @@ set(SRCS
         #        test/test_image_proc.cpp
         #         experiments/helloOpenCV.cpp
         #        test/test_glWindow.cpp #needs src/glad.c and target_link_libraries with glfw
-#        test/test_image.cpp
+        test/test_image.cpp
 #                test/test_pangolin_plot.cpp
-        test/test_imageOperations.cpp
+#        test/test_imageOperations.cpp
+#        test/test_filter.cpp
+#        test/test_otherFilters.cpp
+#         test/pset1.cpp
+#         test/test_gauss_seidel.cpp
+#        test/test_matplotlibcpp.cpp
 
-#        src/glad.c
         external/lodepng.cpp
         src/Image.cpp
         src/Grid.cpp
+        src/Filter.cpp
         src/imageOperations.cpp
         src/proc.cpp
         src/levelset.cpp
+#        src/meshProc.cpp
 
 
         )
 
 add_executable(main ${SRCS})
+
+#link python libraries for matplotlibcpp
+set(NUMPY_INCLUDE_DIR
+        "/usr/local/lib/python2.7/site-packages/numpy/core/include")
+MESSAGE(STATUS "Numpy include dir: ${NUMPY_INCLUDE_DIR}")
+target_include_directories(main
+        PRIVATE ${PYTHON_INCLUDE_DIRS}
+                ${NUMPY_INCLUDE_DIR})
+
 # Finally, you need to tell CMake that this program, assignment_learning_ex,
 # depends on dlib.  You do that with this statement: 
 target_link_libraries(main
-#        dlib::dlib
-#        glfw
-#        ${Eigen_LIBRARIES}
         ${Pangolin_LIBRARIES}
+        ${PYTHON_LIBRARIES} #matplotlib
 #        ${OpenCV_LIBS}
         )
 #Note: Eigen_LIBRARIES is not required
+
+
+
 
 # To compile this program all you need to do is ask cmake.  You would type
 # these commands from within the directory containing this CMakeLists.txt

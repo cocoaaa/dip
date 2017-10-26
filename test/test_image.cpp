@@ -7,8 +7,22 @@
 #include <Eigen/Dense>
 #include "Image.h"
 #include "imageOperations.h"
+void test_neighbors(){
+  dip::Image im(2,5);
+  std::cout << "im construced: " << im.nElements() << std::endl;
+  std::vector<std::vector<int> > diags = im.neighbors_diag();
+  std::cout << "size of diags vec should be 10: " << diags.size() << std::endl;
+  for (int i=0; i<diags.size(); ++i ){
+    std::cout << "\npixel " << i << ": ";
+    for (int j=0; j<diags[i].size(); ++j){
+      std::cout << diags[i][j] << ",";
+    }
+  }
+  std::cout << std::endl;
+}
 
-int main(){
+void test_basic(){
+
   dip::Image im_default;
   std::cout << "Default constructor: everything set by default "
             << im_default.nElements() << std::endl;
@@ -69,9 +83,12 @@ int main(){
   (0.5f*im_test).write("./output/myimg_gray2.png");
 
   //todo: check other operators
+}
 
 
+int main(){
 
+  test_neighbors();
 
 
 }
