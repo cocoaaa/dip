@@ -4,5 +4,18 @@
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/SparseQR>
 
+namespace dip{
 
-//try sparse
+    void buildProblem(
+        std::vector<T>& coeffs,
+        Eigen::VectorXd& b,
+        int n){
+
+
+
+
+    }
+
+
+
+}

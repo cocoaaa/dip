@@ -5,8 +5,17 @@
 #include "Image.h"
 #include "imageOperations.h"
 #include "print.h"
+dip::Image getHalfBW(int w, int h){
+  dip::Image im(w,h,1);
+  for (int y=0; y<h; ++y){
+    for (int x=0; x<w/2; ++x){
+      im(x,y,0) = 1.0f;
+    }
+  }
+  return im;
+}
 
-int main(){
+void test_impulse(){
   dip::Image im_r(10,10,3), im_g(10,10,3), im_b(10,10,3);
   im_r.fill_channel(0,1.0f);
   im_g.fill_channel(1, 1.0f);
@@ -25,7 +34,25 @@ int main(){
   dip::Image impulse;
   impulse = dip::getImpulse(k);
   impulse.write("./output/impulse.png");
-//
+}
+
+
+void test_filters(){
+  dip::Image im;
+  im = getHalfBW(100,100);
+  im.write("./output/half.png");
+
+  dip::Image gx, gy;
+  dip::gradX(im, gx);
+  dip::gradY(im, gy);
+
+  gx.write("./output/gx.png");
+  gy.write("./output/gy.png");
+
+}
+
+int main(){
+  test_filters();
 
 }
 

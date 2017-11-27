@@ -11,6 +11,7 @@
 #include <string>
 #include <cassert> //for assert()
 #include <vector>
+#include <set>
 #include <cmath> // ceil and floor, std::abs, std::exp
 #include "lodepng.h"
 #include "Image.h"
@@ -56,7 +57,7 @@ namespace dip{
     }
 
     Image::Image(const std::vector<float> &d,
-                 const int w, const int h, const int c){
+                 int w, int h, int c){
       init_meta(w,h,c);
       assert( d.size() == nElements_);
       data = std::vector<float>( nElements_,0);
@@ -219,13 +220,229 @@ namespace dip{
     }
 
     // Neighbor indices in diagonal
-    std::vector<std::vector<int> > Image::neighbors_diag(){
+    std::vector<std::set<int> > Image::neighbors_diag(bool debug){
 
       std::vector<std::vector<int> > neighbors(nElements_, std::vector<int>());
-      for (int y=0; y<h_; ++y){
-        for (int x=0; x<w_; ++x){
+      std::vector< std::set<int> > vecOfsets(nElements_, std::set<int>());
+
+      if (h_<2 || w_<2) {
+        return vecOfsets;
+      }
+
+      // Inner pixels
+      std::cout << "\nConstructing inner pixels" << std::endl;
+      for (int x=1; x<w_-1; ++x){
+        for (int y=1; y<h_-1; ++y){
           int i = x + y*w_;
-      return neighbors;
+          std::cout << "--- " << i << ": " << std::endl;
+          std::vector<int> diags = {i-1-w_, i-1+w_, i+1-w_, i+1+w_};
+          neighbors[i].insert(neighbors[i].begin(), diags.begin(), diags.end());
+
+          if (debug) {
+            for (int j = 0; j < neighbors[i].size(); ++j) {
+              std::cout << neighbors[i][j] << ", ";
+            }
+          }
+        }
+      }
+
+
+      // Boundary pixels
+      // 1. Top row
+      std::cout << "\nTop row" << std::endl;
+      for (int x=1; x<w_-1; ++x ) {
+        neighbors[x].push_back(x-1+w_);
+        neighbors[x].push_back(x+1+w_);
+
+        if (debug) {
+          std::cout << "--- " << x << ":  ";
+          for (int j = 0; j < neighbors[x].size(); ++j) {
+            std::cout << neighbors[x][j] << ", ";
+          }
+        }
+
+      }
+
+      // 2. Bottom row
+      std::cout << "\nBottom row" << std::endl;
+      for (int x=1; x<w_-1; ++x) {
+        int i = x + (h_-1)*w_;
+        neighbors[i].push_back(i-1-w_);
+        neighbors[i].push_back(i+1-w_);
+
+        if (debug) {
+          std::cout << "--- " << i << ":  ";
+          for (int j = 0; j < neighbors[i].size(); ++j) {
+            std::cout << neighbors[i][j] << ", ";
+          }
+        }
+
+      }
+
+      // 3. First column
+      std::cout << "\nFirst colm" << std::endl;
+      for (int y=1; y<h_-1; ++y) {
+        int i = y*w_;
+        neighbors[i].push_back(i+1-w_);
+        if (i+1+w_<nElements_) {
+          neighbors[i].push_back(i+1+w_);
+        }
+
+        if (debug) {
+          std::cout << "--- " << i << ":  ";
+          for (int j = 0; j < neighbors[i].size(); ++j) {
+            std::cout << neighbors[i][j] << ", ";
+          }
+        }
+
+      }
+
+      // 4. Last column
+      std::cout << "\nLast colm" << std::endl;
+      for (int y=1; y<h_-1; ++y) {
+        int i = w_-1 + y*w_;
+        neighbors[i].push_back(i-1-w_);
+        if (i-1+w_ < nElements_) {
+          neighbors[i].push_back(i-1+w_);
+        }
+
+        if (debug) {
+          std::cout << "--- " << i << ":   ";
+          for (int j = 0; j < neighbors[i].size(); ++j) {
+            std::cout << neighbors[i][j] << ", ";
+          }
+        }
+      }
+
+      // 5. 4 corners
+      neighbors[0].push_back(1+w_);
+      neighbors[(h_-1)*w_].push_back((h_-1)*w_+1-w_);
+      neighbors[w_-1].push_back(w_-1-1+w_);
+      neighbors[nElements_-1].push_back(nElements_-1-1-w_);
+
+
+      // Convert neighbors[i] to a set
+      for (int i=0; i<nElements_; ++i){
+        vecOfsets[i] = std::set<int>(neighbors[i].begin(), neighbors[i].end());
+      }
+
+      return vecOfsets;
+    }
+
+    // Neighbor indices in direct adjacency
+    std::vector<std::set<int> > Image::neighbors_adjacent(bool debug){
+
+      std::vector<std::vector<int> > neighbors(nElements_, std::vector<int>());
+
+      // Inner pixels
+      std::cout << "\nConstructing inner pixels" << std::endl;
+      for (int x=1; x<w_-1; ++x){
+        for (int y=1; y<h_-1; y++){
+          int i = x + y*w_;
+          std::cout << "--- " << i << ": ";
+          std::vector<int> diags = {i-1, i+1, i-w_, i+w_};
+          neighbors[i].insert(neighbors[i].begin(), diags.begin(), diags.end());
+
+          if (debug) {
+            for (int j = 0; j < neighbors[i].size(); ++j) {
+              std::cout << neighbors[i][j] << ", ";
+            }
+          }
+          std::cout << std::endl;
+        }
+      }
+
+
+      // Boundary pixels
+      // 1. Top row
+      std::cout << "\nTop row" << std::endl;
+      for (int x=1; x<w_-1; ++x ) {
+        neighbors[x].push_back(x-1);
+        neighbors[x].push_back(x+1);
+        neighbors[x].push_back(x+w_);
+
+
+        if (debug) {
+          std::cout << "--- " << x << ":  ";
+          for (int j = 0; j < neighbors[x].size(); ++j) {
+            std::cout << neighbors[x][j] << ", ";
+          }
+        }
+
+      }
+
+      // 2. Bottom row
+      std::cout << "\nBottom row" << std::endl;
+      for (int x=1; x<w_-1; ++x) {
+        int i = x + (h_-1)*w_;
+        neighbors[i].push_back(i-1);
+        neighbors[i].push_back(i+1);
+        neighbors[i].push_back(i-w_);
+
+
+        if (debug) {
+          std::cout << "--- " << i << ":  ";
+          for (int j = 0; j < neighbors[i].size(); ++j) {
+            std::cout << neighbors[i][j] << ", ";
+          }
+        }
+
+      }
+
+      // 3. First column
+      std::cout << "\nFirst colm" << std::endl;
+      for (int y=1; y<h_-1; ++y) {
+        int i = y*w_;
+        neighbors[i].push_back(i-w_);
+        neighbors[i].push_back(i+w_);
+        neighbors[i].push_back(i+1);
+
+
+        if (debug) {
+          std::cout << "--- " << i << ":  ";
+          for (int j = 0; j < neighbors[i].size(); ++j) {
+            std::cout << neighbors[i][j] << ", ";
+          }
+        }
+
+      }
+
+      // 4. Last column
+      std::cout << "\nLast colm" << std::endl;
+      for (int y=1; y<h_-1; ++y) {
+        int i = w_-1 + y*w_;
+        neighbors[i].push_back(i-w_);
+        neighbors[i].push_back(i+w_);
+        neighbors[i].push_back(i-1);
+
+        if (debug) {
+          std::cout << "--- " << i << ":   ";
+          for (int j = 0; j < neighbors[i].size(); ++j) {
+            std::cout << neighbors[i][j] << ", ";
+          }
+        }
+      }
+
+      // 5. 4 corners
+      neighbors[0].push_back(w_);
+      neighbors[0].push_back(1);
+
+      neighbors[(h_-1)*w_].push_back((h_-1)*w_-w_);
+      neighbors[(h_-1)*w_].push_back((h_-1)*w_+1);
+
+      neighbors[w_-1].push_back(w_-1-1);
+      neighbors[w_-1].push_back(w_-1+w_);
+
+      neighbors[nElements_-1].push_back(nElements_-1-1);
+      neighbors[nElements_-1].push_back(nElements_-1-w_);
+
+      // Convert neighbors[i] to a set
+      std::vector< std::set<int> > vecOfsets(nElements_, std::set<int>());
+      for (int i=0; i<nElements_; ++i){
+        vecOfsets[i] = std::set<int>(neighbors[i].begin(), neighbors[i].end());
+      }
+
+      return vecOfsets;
     }
 
     void Image::init_meta(int w, int h, int channels){

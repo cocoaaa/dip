@@ -45,22 +45,23 @@ set(SRCS
         #        test/test_image_proc.cpp
         #         experiments/helloOpenCV.cpp
         #        test/test_glWindow.cpp #needs src/glad.c and target_link_libraries with glfw
-        test/test_image.cpp
+#        test/test_image.cpp
 #                test/test_pangolin_plot.cpp
-#        test/test_imageOperations.cpp
+        test/test_imageOperations.cpp
 #        test/test_filter.cpp
 #        test/test_otherFilters.cpp
-#         test/pset1.cpp
+#         test/test_sparseMtx.cpp
 #         test/test_gauss_seidel.cpp
 #        test/test_matplotlibcpp.cpp
 
         external/lodepng.cpp
         src/Image.cpp
         src/Grid.cpp
-        src/Filter.cpp
+        src/Filter.cpp #todo: finish this
         src/imageOperations.cpp
         src/proc.cpp
         src/levelset.cpp
+
 #        src/meshProc.cpp
 
 

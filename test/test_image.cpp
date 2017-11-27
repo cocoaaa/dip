@@ -7,15 +7,30 @@
 #include <Eigen/Dense>
 #include "Image.h"
 #include "imageOperations.h"
-void test_neighbors(){
-  dip::Image im(2,5);
+
+void test_neighbors_diag(){
+  dip::Image im(3,2);
   std::cout << "im construced: " << im.nElements() << std::endl;
-  std::vector<std::vector<int> > diags = im.neighbors_diag();
-  std::cout << "size of diags vec should be 10: " << diags.size() << std::endl;
+  std::vector<std::set<int> > diags = im.neighbors_diag(true);
+  std::cout << "size of diags vec should be " << im.nElements() << ":" << diags.size() << std::endl;
   for (int i=0; i<diags.size(); ++i ){
     std::cout << "\npixel " << i << ": ";
-    for (int j=0; j<diags[i].size(); ++j){
-      std::cout << diags[i][j] << ",";
+    for (auto elem: diags[i]){
+      std::cout << elem << ", ";
+    }
+  }
+  std::cout << std::endl;
+}
+
+void test_neighbors_adjacent(){
+  dip::Image im(5,5);
+  std::cout << "im construced: " << im.nElements() << std::endl;
+  std::vector<std::set<int> > adjs = im.neighbors_adjacent(true);
+  std::cout << "size of vec should be " << im.nElements() << ":" << adjs.size() << std::endl;
+  for (int i=0; i<adjs.size(); ++i ){
+    std::cout << "\npixel " << i << ": ";
+    for (auto elem: adjs[i]){
+      std::cout << elem << ", ";
     }
   }
   std::cout << std::endl;
@@ -85,10 +100,35 @@ void test_basic(){
   //todo: check other operators
 }
 
+void test_imToVec(){
+  std::vector<float> d;
+  for (int i = 0; i<10; ++i){
+    d.push_back(i);
+  }
+
+  dip::Image im(d, 5,2,1);
+  for (int y=0; y<im.h(); ++y){
+    for (int x=0; x<im.w(); ++x ){
+      std::cout << im(x,y,0) << ",";
+    }
+    std::cout << std::endl;
+  }
+
+  std::vector<float> d2;
+  im.copyToVec(d2);
+
+  for (int i=0; i<d2.size(); ++i){
+    std::cout << d2[i] << ", ";
+  }
+  std::cout << std::endl;
+
+
+}
 
 int main(){
 
-  test_neighbors();
-
+//  test_neighbors_diag();
+//  test_neighbors_adjacent();
+  test_imToVec();
 
 }

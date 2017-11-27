@@ -63,14 +63,4 @@ namespace dip {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
 #endif //DIP_ITERATIVE_SOLVERS_H

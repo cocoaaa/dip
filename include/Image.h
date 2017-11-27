@@ -8,6 +8,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 #include "ImageException.h"
 
 namespace dip {
@@ -22,7 +23,7 @@ namespace dip {
       // If channels_ is zero, the image will be two dimensional
       Image(int width, int height=0, int channels=0);
       Image(const std::string &filename);
-      Image(const std::vector<float> &data, const int w, const int h, const int c);
+      Image(const std::vector<float> &data, int w, int h, int c=1);
       Image(Image &other);//copy constructor
       ~Image(){ } // nothing to clean up 
 
@@ -40,8 +41,8 @@ namespace dip {
       const float& operator()(size_t x, size_t y, size_t c) const;
       // for constant objects. still don't know why we need this
       float smartAccessor(int x, int y, int c, bool clamp=true) const;
-      std::vector< std::vector<int> > neighbors_diag();
-      std::vector< std::vector<int> > neighbors_adj();
+      std::vector< std::set<int> > neighbors_diag(bool debug=false);
+      std::vector< std::set<int> > neighbors_adjacent(bool debug=false);
 
 
         // Operator overloading

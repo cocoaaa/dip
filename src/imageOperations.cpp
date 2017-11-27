@@ -57,7 +57,7 @@ namespace dip{
     for (size_t c = 0; c < im.channels(); ++c){
       for (size_t y = 0; y < im.h(); ++y){
         for (size_t x = 0; x < im.w(); ++x){
-          out(x,y,c) = 0.5*(im.smartAccessor(x-1,y,c,clamp) + im.smartAccessor(x+1, y, c, clamp));
+          out(x,y,c) = 0.5*(im.smartAccessor(x+1,y,c,clamp) - im.smartAccessor(x-1, y, c, clamp));
         }
       }
     }
@@ -71,7 +71,7 @@ namespace dip{
     for (size_t c = 0; c < im.channels(); ++c){
       for (size_t y = 0; y < im.h(); ++y){
         for (size_t x = 0; x < im.w(); ++x){
-          out(x,y,c) = 0.5*(im.smartAccessor(x,y-1,c, clamp) + im.smartAccessor(x,y+1,c, clamp));
+          out(x,y,c) = 0.5*(im.smartAccessor(x,y+1,c, clamp) - im.smartAccessor(x,y-1,c, clamp));
         }
       }
     }
